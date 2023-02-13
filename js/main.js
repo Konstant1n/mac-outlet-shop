@@ -84,6 +84,81 @@ class RenderCards {
 
         likeOfProduct.addEventListener("click", getLike);
 
+
+                // modal window
+
+                function callModalWindow(event) {
+                    const modalBackground = document.querySelector(".modal-background");
+                    const modalWindow = document.querySelector(".modal-window-container"); 
+                    const btn = productCard.querySelector('.product-card__btn');
+        
+                    
+        
+                    // cancel bubbling for like button and add to cart btn without stopPropagation
+                    if (event.target === likeOfProduct || event.target === btn) {
+                        return 
+                    }
+                    
+        
+                    modalBackground.classList.add("modal_active");
+                    modalWindow.classList.add("modal_active");
+                    document.body.setAttribute("class", "modal_active");
+           
+        
+        
+                    modalBackground.onclick = () => {
+                        modalBackground.classList.remove('modal_active');
+                        modalWindow.classList.remove('modal_active');
+                        document.body.removeAttribute('class');
+                    }
+        
+                    modalWindow.innerHTML = `
+                        <img class="modal-  img modal-window__element-one" src="${IMAGE_PATH_ITEM + item.imgUrl}" alt="${item.name}">
+                        <div class="modal-window__element-two">
+                        
+                            
+                        <h2 class="product-title modal-window">${item.name}</h2>
+                            
+                        <div class="product-footer-container modal-window">
+                                <div class="product-footer-item-1">
+                                    <p class="product-reviews"><span class="bold-text">${item.orderInfo.reviews}%</span> Positive reviews</p>
+                                    <p class="product-footer-item-1-paragraph">Above average</p>
+                                </div>
+                                <div class="product-footer-item-2">
+                                    <p class="product-orders">${item.orderInfo.ordersNumber}</p>
+                                    <p>orders</p>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <p class="modal-window-product-color modal-window__element-two_paragraph"><span class="grey-text">Color:</span> ${item.color.join(', ')}</p>
+                                <p class="modal-window-product-OS modal-window__element-two_paragraph"><span class="grey-text">Operating System:</span> ${item.os}</p>
+                                <p class="modal-window-product-chip modal-window__element-two_paragraph"><span class="grey-text">Chip:</span> ${item.chip.name}</p>
+                                <p class="modal-window-product-height modal-window__element-two_paragraph"><span class="grey-text">Height:</span> ${item.size.height} cm</p>
+                                <p class="modal-window-product-width modal-window__element-two_paragraph"><span class="grey-text">Width:</span> ${item.size.width} cm</p>
+                                <p class="modal-window-product-depth modal-window__element-two_paragraph"><span class="grey-text">Depth:</span> ${item.size.depth} cm</p>
+                                <p class="modal-window-product-weight modal-window__element-two_paragraph"><span class="grey-text">Weight:</span> ${item.size.weight} kg</p>
+                            </div>
+                
+                        </div>
+                        <div class="modal-window__element-three">
+                            <h3 class="product-price modal-window">${item.price} $</h3>
+                            <h3 class="product-stock-status modal-window">Stock: ${item.orderInfo.inStock} pcs.</h3>
+                            <button class="product-card__btn modal-window">Add to cart</button>
+                        </div>
+                    `;
+
+
+                    // btn addToCart style in modal
+                    const btnModal = modalWindow.querySelector('.product-card__btn')
+                    if (item.orderInfo.inStock === 0) {
+                        btnModal.classList.add("empty");
+                        btnModal.disabled = true;                  
+                    }
+                }
+        
+                productCard.addEventListener("click", callModalWindow);
+
         return productCard;
         
     }
