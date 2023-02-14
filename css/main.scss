@@ -10,6 +10,14 @@ input {
   outline: none;
 }
 
+h2 {
+  font-size: 18px;
+  margin-block-start: 0em;
+  margin-block-end: 0em;
+  margin-inline-start: 0px;
+  margin-inline-end: 0px
+}
+
 h3 {
   margin-block-start: 0em;
   margin-block-end: 0em;
@@ -444,7 +452,7 @@ li {
 
 
 
-/* _____________________________________________________________________________modal window */
+/* modal window */
 
 body.modal_active {
   overflow: hidden;
@@ -577,44 +585,6 @@ body.modal_active {
   }
 }
 
-
-// @media only screen
-// and (min-width: 670px)
-// and (max-width: 799px) {
-
-//   .modal-window__element-one {
-//     height: auto;
-//     width: 200px;
-//     padding: 16px;
-//     margin: 0px
-//   }
-//   .modal-window__element-two {
-//     padding: 16px 24px;
-//   }
-//   .product-title.modal-window {
-//     margin-bottom: 10px;
-//   }
-//   .product-footer-container.modal-window {
-//     margin-bottom: 28px;
-//     max-width: 250px;
-//     border-radius: 10px;
-//   }
-//   .product-price.modal-window {
-//     font-size: 28px;
-//     line-height: 1.17;
-//   }
-//   .product-stock-status.modal-window {
-//     font-size: 16px;
-//     line-height: 1.17;
-//   } 
-//   .modal-window__element-three {
-//     padding: 16px;
-//   }
-//   .product-card__btn.modal-window {
-//     max-width: 130px;
-//   }
-// }
-
 @media only screen and (max-width: 950px) {
   .modal-window-container {
     flex-direction: column;
@@ -680,7 +650,7 @@ body.modal_active {
 
 
 
-/* _______________________________________________________________________________search input */
+/* search input */
 .search-area {
   position: relative;
   max-width: 1024px;
@@ -702,12 +672,16 @@ body.modal_active {
   height: 100%;
   width: 95%;
   border: none;
+  padding-left: 23px;
 }
 
 
 .search-area::before {
   content: "";
   display: inline-block;
+  position: absolute;
+  top: 16px;
+  left: 22px;
   height: 20px;
   width: 20px;
   margin-right: 20px;
@@ -743,7 +717,7 @@ body.modal_active {
   border: none;
 }
 
-/* _________________________________________________________________________________sort btn */
+/* sort btn */
 .sortModal {
   display: none;
   position: absolute;
@@ -804,7 +778,7 @@ body.modal_active {
 
 
 
-/*____________________________________________________________________________ accordion section */
+/* accordion section */
 .accordion {
   width: 100%;
   max-width: 352px;
@@ -821,7 +795,6 @@ body.modal_active {
   position: relative;
   font-size: 18px;
   line-height: 21px;
-  height: 50px;
   background: #EDF3FF;
   border-bottom: 0.5px solid #DDDDDD;
   padding: 14px 16px;
@@ -908,3 +881,19 @@ body.modal_active {
 
 
 // End accordeon section
+
+
+@media only screen and (max-width: 700px) {
+  .wrapper {
+    flex-direction: column;
+  }
+
+  .cardContainer {
+    justify-content: center;
+  }
+
+  .accordion {
+    margin: 0 auto;
+    margin-bottom: 25px;
+  }
+}
