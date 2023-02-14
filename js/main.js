@@ -574,7 +574,7 @@ class RenderFilters {
 
 }
 
-// ___________________________________________________________________________________cart logic
+    // = = = = = = = = = = = = = = = = = = = = = = = Class Cart = = = = = = = = = = = = = = = = = = = = = = = 
 
 class Cart {
     constructor() {
@@ -640,7 +640,7 @@ class Cart {
 
 
 
-// _____________________________________________________________________-render cart
+// = = = = = = = = = = = = = = = = = = = = = = = Cart rendering = = = = = = = = = = = = = = = = = = = = = = = 
 class RenderCart {
     constructor() {
         this.containerForCart = document.querySelector('.cart-container__product');

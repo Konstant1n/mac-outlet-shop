@@ -832,7 +832,7 @@ body.modal_active {
     margin-bottom: 25px;
   }
 }
-/* _______________________________________________________________________________________________cart */
+/* cart */
 .cart-btn {
   position: relative;
   width: 40px;
@@ -947,7 +947,7 @@ body.modal_active {
   background: #595fb4;
 }
 
-/* ____________________________________cart products */
+/* cart products */
 .cart-container__product {
   width: 438px;
 }
@@ -1089,7 +1089,7 @@ body.modal_active {
   background-color: #ffffff;
 }
 
-/* ____________________________________________________________________________________________cart media */
+/* cart media */
 @media only screen and (min-width: 350px) and (max-width: 445px) {
   .cart-container.active {
     max-width: 350px;
