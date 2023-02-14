@@ -19,9 +19,158 @@ class ItemsList {
     constructor () {
         this.items = items.map(item => new Item(item));
     }
+
+
+    // = = = = = = = = = = = = = = = = = = = = = = = logic for find and filtering = = = = = = = = = = = = = = = = = = = = = = = 
+    findItems(filter) {
+
+        let result = this.items;     
+
+        // name
+        for (let key in filter) {
+            if (key === "name") {
+                result = result.filter(item => item.name.toLowerCase().includes(filter[key].toLowerCase()));
+            }          
+        }
+        // color
+        for (let key in filter) {
+            if (key === "color" && filter[key].length !== 0) {
+                result = result.filter(item => {
+                    for (let ch of filter[key]) {
+                        if (item.color.includes(ch)){
+                            return item;
+                        }
+                    }  
+                })
+            }          
+        }
+        // memory
+        for (let key in filter) {
+            if (key === "storage" && filter[key].length !== 0) {
+                result = result.filter(item => {
+                    if (filter[key].includes(item.storage)) {
+                        return item;
+                    }
+                })
+            }          
+        }
+        // OS
+        for (let key in filter) {
+            if (key === "os" && filter[key].length !== 0) {
+                result = result.filter(item => {
+                    if (filter[key].includes(item.os)) {
+                        return item;
+                    }
+                })
+            }          
+        }
+
+        // correctly filter for screen size
+        for (let key in filter) {
+            if (key === "display" && filter[key].length !== 0) {
+                console.log("Display")
+                // let innerArr = result;
+                result = result.filter(item => {
+                    for (const ch of filter[key]) {
+                        if (ch == "<5" && item.display < 5) {
+                            return item;
+                        }
+                        if (ch == '5-7' && item.display >= 5 && item.display < 7) {
+                            return item;
+                        }
+                        if (ch == '7-12' && item.display >= 7 && item.display < 12) {
+                            return item;
+                        }
+                        if (ch == '12-16' && item.display >= 12 && item.display <= 16) {
+                            return item;
+                        }
+                        if (ch == '+16' && item.display > 16) {
+                            return item;
+                        }   
+                    }                 
+                });               
+            }          
+        }
+        // filter by price from to
+        for (let key in filter) {
+            if (key === "from") {
+                let numMin = itemsList.availablePrice[0];
+  
+                if (key === 'from' && filter[key] > numMin) {
+                  numMin = +filter[key];  
+                  
+                }
+                result = result.filter(item => {
+                    return item.price >= numMin;
+                }) 
+            }          
+        }
+        for (let key in filter) {
+            if (key === "to") {
+                let numMax = itemsList.availablePrice[itemsList.availablePrice.length-1];
+                if (key === 'to' && filter[key] < numMax) {
+                  numMax = +filter[key];  
+ 
+                }
+                result = result.filter(item => {
+                    return item.price <= numMax;
+                }) 
+            }          
+        }
+        // sort by price asc desc
+        for (let key in filter) {
+            if (key === "sort") {               
+                 if(filter[key] === 'default') {
+                    result = result.sort((a,b) => {return a.id - b.id});
+                } else if(filter[key] === 'ascending') {                    
+                    result = result.sort((a,b) => {return a.price - b.price})
+                } else if(filter[key] === 'descending') {                    
+                    result = result.sort((a,b) => {return b.price - a.price})
+                }
+            }          
+        }
+
+
+        return result;
+    }
+
+
+    get availableColors() {
+        return Array.from(new Set(this.items
+            .reduce((acc, item) => [...acc, ...item.color], []))).sort();
+    }
+
+    get availableStorage() {
+        return this.items
+            .map(item => item.storage)
+            .filter((item, index, arr) => arr.indexOf(item) === index && item !== null)
+            .sort((a, b) => {return a - b});
+    }
+
+    get availableOs() {
+        return this.items
+            .map(item => item.os)
+            .filter((item, index, arr) => arr.indexOf(item) === index && item !== null)
+            .sort((a, b) => {return a - b});
+    }
+ 
+    get availableDisplay() {
+        let result = ['<5', '5-7', '7-12', '12-16', '+16'];
+        return result.filter((item, index, arr) => arr.indexOf(item) === index)
+       
+    }
+
+    get availablePrice() {
+        return this.items
+            .map(item => item.price)
+            .filter((item, index, arr) => arr.indexOf(item) === index && item !== null)
+            .sort((a, b) => {return a - b});
+    }
+
 }
 
-// Create a class that will render the cards
+
+// = = = = = = = = = = = = = = = = = = = = = = = Create a class that will render the cards = = = = = = = = = = = = = = = = = = = = = = = 
 
 class RenderCards {
     constructor() {
@@ -175,6 +324,252 @@ class RenderCards {
 }
 
 
-const itemsList = new ItemsList;    // create a variable for writing a new instance of the ItemsList class
+
+// = = = = = = = = = = = = = = = = = = = = = = = class Filter = = = = = = = = = = = = = = = = = = = = = = = 
+class Filter {
+    #itemsList = null;
+    #renderCards = null;
+    constructor(itemsList, renderCards) {
+        this.name = '';
+        this.sort = 'default';
+        this.color = [];
+        this.storage = [];
+        this.from = 0;
+        this.to = Infinity;
+        this.os = [];
+        this.display = [];
+        this.#itemsList = itemsList;
+        this.#renderCards = renderCards;
+    }
+
+    setFilter(key, value) {
+        if (!Array.isArray(this[key])) {
+            this[key] = value;
+            this.#findAndRerender();
+            return;
+        }
+
+        if (this[key].includes(value)) {
+            this[key] = this[key].filter(val => val !== value);
+        } else {
+            this[key].push(value);
+        }
+        console.log(this)
+        this.#findAndRerender();
+        
+    }
+
+    #findAndRerender() {
+        
+        const items = this.#itemsList.findItems(filter);
+        console.log(items, "items test list")
+        this.#renderCards.renderCards(items);
+    }
+}
+
+
+// = = = = = = = = = = = = = = = = = = = = = = = class RenderFilters = = = = = = = = = = = = = = = = = = = = = = = 
+class RenderFilters {
+    #filter = null;
+    constructor(itemsList, filter) {
+        this.#filter = filter;
+        this.accordionContainer = document.querySelector('.accordion');
+        this.filterOptions = [
+            {
+                displayName: 'Price',
+                name: 'price',
+                options: itemsList.availablePrice,
+            },
+            {
+                displayName: 'Color',
+                name: 'color',
+                options: itemsList.availableColors,
+            },
+            {
+                displayName: 'Memory',
+                name: 'storage',
+                options: itemsList.availableStorage,
+            },
+            {
+                displayName: 'OS',
+                name: 'os',
+                options: itemsList.availableOs,
+            },
+            {
+                displayName: 'Display',
+                name: 'display',
+                options: itemsList.availableDisplay,
+            },
+        ];
+
+        // input find by name
+        this.inputName = document.getElementById('search');
+        
+        this.inputName.oninput = (event) => {
+            const { value } = event.target;
+            this.#filter.setFilter('name', value);
+        }
+
+
+        this.sortFilter(this.#filter);
+        this.renderFilters(this.filterOptions);
+    }
+
+
+    // = = = = = = = = = = = = = = = = = = = = = = = function render filter = = = = = = = = = = = = = = = = = = = = = = = 
+
+    renderFilter(optionsData) {
+        const accordionBtn = document.createElement('div');
+        accordionBtn.className = 'accordion-btn';
+        accordionBtn.innerHTML = `
+            <h2>${optionsData.displayName}</h2><img class="accordion-btn__arrow"src="img/arrow_left.svg" alt="arrow">
+        `;
+        
+        this.accordionContainer.append(accordionBtn);
+
+
+        const accordionContent = document.createElement('div');
+        accordionContent.className = 'accordion-content';
+        
+        if (optionsData.name !== "price") {
+            const optionsElements = optionsData.options.map(option => {
+                const filterOption = document.createElement('label');
+                const checkbox = document.createElement('input');
+                const checkboxName = document.createElement('span');
+
+                checkbox.type = 'checkbox';
+                checkbox.value = option;
+                checkboxName.innerHTML = `${option}`;
+
+                checkbox.onchange = () => {
+                    this.#filter.setFilter(optionsData.name, option);
+                }
+                filterOption.appendChild(checkbox);
+                filterOption.appendChild(checkboxName);
+
+                return filterOption;
+            })
+            accordionContent.append(...optionsElements);
+            this.accordionContainer.append(accordionContent);
+        } 
+        // block for price filter   
+        if (optionsData.name === "price") {
+            const filterOptionMin = document.createElement('label');
+            const filterOptionMax = document.createElement('label');
+            const inputMinNumber = document.createElement('input');
+            const inputMaxNumber = document.createElement('input');
+            const inputMinName = document.createElement('p');
+            const inputMaxName = document.createElement('p');
+            accordionContent.className = "accordion-content-input";
+            inputMinNumber.className = "accordion-content-input-number";
+            inputMaxNumber.className = "accordion-content-input-number";
+        
+            inputMinNumber.type = 'number';
+            inputMaxNumber.type = 'number';
+            
+            inputMinName.innerHTML = `From`;
+            inputMaxName.innerHTML = `To`;
+        
+            inputMinNumber.oninput = (event) => {
+                const { value } = event.target;
+                this.#filter.setFilter('from', value);
+            }
+            inputMaxNumber.oninput = (event) => {
+                const { value } = event.target;
+                if (Number(value) >= itemsList.availablePrice[itemsList.availablePrice.length - 1]) {
+                    event.target.value = itemsList.availablePrice[itemsList.availablePrice.length - 1];
+                }
+                this.#filter.setFilter('to', value);
+            }
+            // if (Number(inputMinNumber.value) <= itemsList.availablePrice[0]) {                        
+            //     inputMinNumber.value = itemsList.availablePrice[0];                        
+            // }
+
+
+            filterOptionMin.append(inputMinName, inputMinNumber);
+            filterOptionMax.append(inputMaxName, inputMaxNumber);
+        
+            
+            
+            accordionContent.append(filterOptionMin, filterOptionMax);
+            this.accordionContainer.append(accordionContent);
+        }
+
+
+        
+        // = = = = = = = = = = = = = = = = = = = = = = = acordion animation = = = = = = = = = = = = = = = = = = = = = = = 
+
+        accordionBtn.addEventListener('click', () => {
+            const arrowBtn = accordionBtn.querySelector('.accordion-btn__arrow');            
+            accordionBtn.classList.toggle('active');
+            accordionContent.classList.toggle('active');
+            arrowBtn.classList.toggle('active');
+        })
+
+    }
+
+
+
+    // = = = = = = = = = = = = = = = = = = = = = = = rendering filters = = = = = = = = = = = = = = = = = = = = = = = 
+
+    renderFilters() {
+        this.accordionContainer.innerHTML = '';
+
+        const filtersElements = this.filterOptions.map(optionData => this.renderFilter(optionData));
+        
+        return filtersElements;  
+    }
+
+    // = = = = = = = = = = = = = = = = = = = = = = = sorting Filter = = = = = = = = = = = = = = = = = = = = = = = 
+    sortFilter() {
+        const formField = document.querySelector('.search-area');
+        const sortBtn = formField.querySelector('.search-area__sort');
+        const sortModal = formField.querySelector(".sortModal");
+        const defaultBtn = sortModal.querySelector('.default');
+        const ascBtn = sortModal.querySelector('.ascending');
+        const desBtn = sortModal.querySelector('.descending');
+
+        function toggleSortModal () {
+            sortModal.classList.toggle('active');
+        }
+        sortBtn.addEventListener('click', toggleSortModal);
+
+        function sortDefault () {
+            desBtn.classList.remove('active');
+            defaultBtn.classList.add('active');
+            ascBtn.classList.remove('active');
+            filter.setFilter('sort', 'default');             
+        }
+        defaultBtn.addEventListener('click', sortDefault);
+
+        
+
+        function sortAsc () {
+            desBtn.classList.remove('active');
+            defaultBtn.classList.remove('active');
+            ascBtn.classList.add('active');
+            filter.setFilter('sort', 'ascending');  
+        }
+        ascBtn.addEventListener('click', sortAsc);
+
+        function sortDes () {
+            desBtn.classList.add('active');
+            defaultBtn.classList.remove('active');
+            ascBtn.classList.remove('active');
+            filter.setFilter('sort', 'descending'); 
+        }
+        desBtn.addEventListener('click', sortDes);
+    }
+                    
+}
+
+
+
+const itemsList = new ItemsList;
  
-const renderCards = new RenderCards(itemsList);     // render cards on the page based on the Item class object array
+const renderCards = new RenderCards(itemsList);
+
+const filter = new Filter(itemsList, renderCards);
+
+const renderFilter = new RenderFilters(itemsList, filter);
+
